@@ -2,6 +2,7 @@
 
 ## Présentation :
 Le projet vise à construire une application d’aide à la décision pour le marketing basée sur les cohortes d’acquisition, la segmentation RFM et la valeur vie client (CLV).
+
 **Données :** le jeu de données à utiliser est le Online Retail II (UCI) , il contient les transactions e‑commerce d’un détaillant UK entre 01/12/2009 et le  09/12/2011(~1,07M lignes). 
 
 ## Objectifs :
