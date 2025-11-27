@@ -34,6 +34,11 @@ def load_data():
 
 df, df_clients = load_data()
 
+#on les stocke dans session_state pour qu'ils soient accessibles dans les autres pages
+st.session_state["df"] = df
+st.session_state["df_clients"] = df_clients
+
+
 # ----------------------------
 # SIDEBAR FILTERS
 # ----------------------------
