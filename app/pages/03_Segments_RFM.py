@@ -129,6 +129,8 @@ segment_metrics = df_clients.groupby("Customer ID").agg({
     "Quantity": "sum"
 }).reset_index()
 
+segment_metrics.rename(columns={"Customer ID": "CustomerID"}, inplace=True)
+
 rfm_metrics = rfm.merge(segment_metrics, on="CustomerID", how="left")
 rfm_metrics = rfm_metrics.groupby("Segment").agg({
     "CustomerID": "count",
