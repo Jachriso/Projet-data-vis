@@ -100,6 +100,48 @@ st.markdown(f"### Effectif : {len(rfm_filtered)} clients")
 st.subheader("Tableau RFM complet")
 st.dataframe(rfm_filtered, use_container_width=True)
 
+# --- Ajouter Volume (total articles achetés par client) ---
+volume_df = df_clients.groupby("Customer ID")["Quantity"].sum().reset_index()
+volume_df.rename(columns={"Quantity": "Volume"}, inplace=True)
+rfm = rfm.merge(volume_df, left_on="CustomerID", right_on="Customer ID", how="left")
+rfm.drop(columns=["Customer ID"], inplace=True)
+
+# --- Ajouter Marge (Revenue - Cost) si tu as une colonne Cost ---
+if "Cost" in df_clients.columns:
+    df_clients["Margin"] = df_clients["Revenue"] - df_clients["Cost"]
+    margin_df = df_clients.groupby("Customer ID")["Margin"].sum().reset_index()
+    rfm = rfm.merge(margin_df, left_on="CustomerID", right_on="Customer ID", how="left")
+    rfm.drop(columns=["Customer ID"], inplace=True)
+else:
+    rfm["Margin"] = rfm["Monetary"]  # si pas de coût, on met juste le CA comme proxy
+
+# --- Marge totale par segment ---
+st.subheader("Répartition de la marge totale par segment")
+margin_segment = rfm.groupby("Segment")["Margin"].sum()
+fig_margin, ax_margin = plt.subplots(figsize=(6,6))
+ax_margin.pie(
+    margin_segment,
+    labels=margin_segment.index,
+    autopct="%1.1f%%",
+    startangle=90,
+    colors=plt.cm.Pastel1.colors[:len(margin_segment)]
+)
+ax_margin.set_title("Marge totale par segment")
+st.pyplot(fig_margin)
+
+
+# --- Volume total par segment (graphique en aires) ---
+st.subheader("Volume total d'articles par segment (aire)")
+volume_segment = rfm.groupby("Segment")["Volume"].sum().sort_values(ascending=False)
+fig_volume, ax_volume = plt.subplots(figsize=(8,4))
+ax_volume.fill_between(volume_segment.index, volume_segment.values, color="plum", alpha=0.6)
+ax_volume.plot(volume_segment.index, volume_segment.values, color="purple", marker="o")
+ax_volume.set_ylabel("Volume total")
+ax_volume.set_xlabel("Segments")
+ax_volume.set_title("Volume total par segment")
+st.pyplot(fig_volume)
+
+
 # --- Graphique --- 
 #st.subheader("Distribution des segments")
 #st.bar_chart(rfm_filtered["Segment"].value_counts())
