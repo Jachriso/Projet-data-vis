@@ -12,7 +12,7 @@ sns.set(style="whitegrid")
 # ----------------------------
 # LOAD DATA
 # ----------------------------
-@st.cache_data
+'''@st.cache_data
 def load_data():
     file_path = "../data/online_retail_II.xlsx"
     df_sheets = pd.read_excel(file_path, sheet_name=None, engine='openpyxl')
@@ -32,7 +32,18 @@ def load_data():
     
     return df, df_clients
 
+df, df_clients = load_data()'''
+# ----------------------------
+# LOAD DATA (depuis CSV compressés)
+# ----------------------------
+@st.cache_data
+def load_data():
+    df = pd.read_csv("../data/processed/retail_clean_full.csv.gz", compression="gzip")
+    df_clients = pd.read_csv("../data/processed/retail_clean_clients.csv.gz", compression="gzip")
+    return df, df_clients
+
 df, df_clients = load_data()
+
 
 #on les stocke dans session_state pour qu'ils soient accessibles dans les autres pages
 st.session_state["df"] = df
