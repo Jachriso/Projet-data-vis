@@ -12,10 +12,7 @@ st.set_page_config(page_title="Cohortes - Diagnostic", layout="wide")
 # Style matplotlib
 plt.style.use('seaborn-v0_8-whitegrid')
 
-
-# ============================================================================
-# FONCTIONS DE PRÉPARATION DES DONNÉES
-# ============================================================================
+# Fonctions de préparation des données
 
 def prepare_cohort_data(df):
     """
@@ -63,10 +60,7 @@ def calculate_retention_rate(df_cohort):
 
     return retention_rate, cohort_counts
 
-
-# ============================================================================
-# FONCTIONS DE VISUALISATION MATPLOTLIB
-# ============================================================================
+# Fonctions de visualisation matplotlib
 
 def plot_retention_heatmap(retention_rate):
     """
@@ -214,11 +208,7 @@ def fig_to_bytes(fig):
     buf.seek(0)
     return buf
 
-
-# ============================================================================
-# INTERFACE STREAMLIT
-# ============================================================================
-
+# Interface streamlit
 # En-tête de la page
 st.title("Analyse des Cohortes - Diagnostic")
 st.markdown("""
@@ -228,13 +218,10 @@ Cette page permet d'analyser la **rétention** et le **comportement d'achat** de
 """)
 st.markdown("---")
 
-# ============================================================================
-# RÉCUPÉRATION DES DONNÉES FILTRÉES DEPUIS SESSION_STATE
-# ============================================================================
-
+# Récupération des données filtrées depuis session_state
 # Vérifier que les données filtrées existent
 if "df_filtered" not in st.session_state:
-    st.error("Les données filtrées ne sont pas disponibles. Veuillez retourner à la page d'accueil.")
+    st.error("Les données filtrées ne sont pas disponibles.")
     st.stop()
 
 # Récupérer les données et filtres depuis session_state
@@ -252,10 +239,7 @@ st.sidebar.info(f"""
 - **Retours** : {'Inclus' if include_returns else 'Exclus'}
 """)
 
-# ============================================================================
-# PRÉPARATION DES DONNÉES DE COHORTES
-# ============================================================================
-
+# Préparation des données de cohortes
 df_cohort = prepare_cohort_data(df_filtered)
 
 if df_cohort.empty:
@@ -264,9 +248,7 @@ if df_cohort.empty:
 
 retention_rate, cohort_counts = calculate_retention_rate(df_cohort)
 
-# ============================================================================
-# SECTION 1 : HEATMAP DE RÉTENTION
-# ============================================================================
+# Heatmap de rétention
 
 st.header("1. Heatmap de rétention par cohortes")
 
@@ -330,10 +312,7 @@ with col4:
 
 st.markdown("---")
 
-# ============================================================================
-# SECTION 2 : COURBES DE DENSITÉ DE CA
-# ============================================================================
-
+# Courbes de densité de ca
 st.header("2. Courbes de densité de CA par âge")
 
 with st.expander("ℹ️ **Comment interpréter ces courbes ?**"):
@@ -387,9 +366,7 @@ plt.close()
 
 st.markdown("---")
 
-# ============================================================================
-# SECTION 3 : FOCUS SUR UNE COHORTE
-# ============================================================================
+# Focus sur une cohorte
 
 st.header("3. Focus sur une cohorte spécifique")
 
@@ -458,11 +435,9 @@ plt.close()
 
 st.markdown("---")
 
-# ============================================================================
-# SECTION 4 : EXPORTS
-# ============================================================================
+# Exports fichiers .csv et images des graphiques en .png
 
-st.header("4. Exports")
+st.header("4. Exports fichiers")
 
 col1, col2 = st.columns(2)
 
@@ -538,3 +513,4 @@ with col3:
     )
 
 st.markdown("---")
+
