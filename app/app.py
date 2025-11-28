@@ -39,7 +39,7 @@ pg = st.navigation(
 st.sidebar.header("Filtres d'analyse")
 date_range = st.sidebar.date_input("Période", [df['InvoiceDate'].min(), df['InvoiceDate'].max()])
 countries = st.sidebar.multiselect("Pays", df['Country'].unique(), default=df['Country'].unique())
-include_returns = st.sidebar.checkbox("Inclure retours", True)
+include_returns = True
 
 # Badge Retours exclus
 if not include_returns:
