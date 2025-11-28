@@ -1,28 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-'''
-@st.cache_data
-def load_data():
-    file_path = "../data/online_retail_II.xlsx"
-    df_sheets = pd.read_excel(file_path, sheet_name=None, engine='openpyxl')
-    df = pd.concat(df_sheets.values(), ignore_index=True)
-
-    df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
-    df['Revenue'] = df['Quantity'] * df['Price']
-    df['Annulation'] = df['Invoice'].astype(str).str.startswith('C')
-    df.loc[df['Annulation'], 'Revenue'] *= -1
-    df['Hour'] = df['InvoiceDate'].dt.hour
-    df['Day'] = df['InvoiceDate'].dt.date
-    df['Month'] = df['InvoiceDate'].dt.to_period('M')
-
-    df_clients = df[~df['Annulation']].copy()
-    df_clients['is_return'] = df_clients['Quantity'] < 0
-    df_clients['is_damage'] = (df_clients['Quantity'] < 0) & (df_clients['Price'] == 0)
-
-    return df, df_clients
-'''
-
 @st.cache_data
 def load_data():
     # Lecture des CSV compressés
@@ -45,3 +23,10 @@ def load_data():
 
     return df, df_clients
 
+def session_setup():
+    df = st.session_state["df"]
+    df_clients = st.session_state["df_clients"]
+    df_filtered = st.session_state["df_filtered"]
+    df_clients_filtered = st.session_state["df_clients_filtered"]
+
+    return df, df_clients, df_filtered, df_clients_filtered

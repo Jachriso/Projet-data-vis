@@ -2,11 +2,13 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-from io import BytesIO
+from app.utils import session_setup
 
 
 st.title("Simulation de scénarios - Paramètres avancés")
+
+# récupère les dataframes
+df, df_clients, df_filtered, df_clients_filtered = session_setup()
 
 # Préparer les données baseline
 df_scenario = df_filtered.copy()
