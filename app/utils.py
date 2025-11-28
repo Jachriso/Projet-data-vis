@@ -21,6 +21,8 @@ def load_data():
     df_clients['is_return'] = df_clients['Quantity'] < 0
     df_clients['is_damage'] = (df_clients['Quantity'] < 0) & (df_clients['Price'] == 0)
 
+
+
     return df, df_clients
 
 def session_setup():
