@@ -14,20 +14,8 @@ plt.style.use('seaborn-v0_8-whitegrid')
 
 
 # ============================================================================
-# FONCTIONS DE CHARGEMENT ET PRÉPARATION DES DONNÉES
+# FONCTIONS DE PRÉPARATION DES DONNÉES
 # ============================================================================
-
-@st.cache_data
-def load_data():
-    """Charge les données nettoyées"""
-    try:
-        df = pd.read_csv("../data/processed/retail_clean_clients.csv.gz")
-        df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
-        return df
-    except FileNotFoundError:
-        st.error("Fichier de données introuvable.")
-        st.stop()
-
 
 def prepare_cohort_data(df):
     """
@@ -240,65 +228,27 @@ Cette page permet d'analyser la **rétention** et le **comportement d'achat** de
 """)
 st.markdown("---")
 
-# Chargement des données
-df = load_data()
-
 # ============================================================================
-# BARRE LATÉRALE - FILTRES
+# RÉCUPÉRATION DES DONNÉES FILTRÉES DEPUIS SESSION_STATE
 # ============================================================================
 
-st.sidebar.header("Filtres")
+# Vérifier que les données filtrées existent
+if "df_filtered" not in st.session_state:
+    st.error("Les données filtrées ne sont pas disponibles. Veuillez retourner à la page d'accueil.")
+    st.stop()
 
-# Filtre pays
-available_countries = sorted(df['Country'].unique())
-selected_countries = st.sidebar.multiselect(
-    "Pays",
-    options=available_countries,
-    default=['United Kingdom'],
-    help="Sélectionnez un ou plusieurs pays pour l'analyse"
-)
+# Récupérer les données et filtres depuis session_state
+df_filtered = st.session_state["df_filtered"]
+include_returns = st.session_state.get("include_returns", True)
+date_range = st.session_state.get("date_range", None)
+countries = st.session_state.get("countries", [])
 
-# Filtre période
-min_date = df['InvoiceDate'].min().date()
-max_date = df['InvoiceDate'].max().date()
-
-date_range = st.sidebar.date_input(
-    "Période d'analyse",
-    value=(min_date, max_date),
-    min_value=min_date,
-    max_value=max_date,
-    help="Sélectionnez la période à analyser"
-)
-
-# Filtre retours
-include_returns = st.sidebar.checkbox(
-    "Inclure les retours",
-    value=False,
-    help="Cochez pour inclure les transactions avec quantité négative"
-)
-
-# Application des filtres
-df_filtered = df.copy()
-
-if selected_countries:
-    df_filtered = df_filtered[df_filtered['Country'].isin(selected_countries)]
-
-if len(date_range) == 2:
-    start_date, end_date = date_range
-    df_filtered = df_filtered[
-        (df_filtered['InvoiceDate'].dt.date >= start_date) &
-        (df_filtered['InvoiceDate'].dt.date <= end_date)
-        ]
-
-if not include_returns:
-    df_filtered = df_filtered[df_filtered['Quantity'] > 0]
-
-# Badge filtres actifs
+# Affichage des filtres actifs dans la sidebar
 st.sidebar.markdown("---")
 st.sidebar.markdown("### Filtres actifs")
 st.sidebar.info(f"""
-- **Pays** : {', '.join(selected_countries) if selected_countries else 'Tous'}
-- **Période** : {date_range[0]} → {date_range[1] if len(date_range) == 2 else 'En cours'}
+- **Pays** : {', '.join(countries) if countries else 'Tous'}
+- **Période** : {date_range[0] if date_range else 'N/A'} → {date_range[1] if date_range and len(date_range) == 2 else 'N/A'}
 - **Retours** : {'Inclus' if include_returns else 'Exclus'}
 """)
 
@@ -543,7 +493,7 @@ st.markdown("---")
 # Section export PNG
 st.subheader("Export graphiques (PNG)")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 with col1:
     # Régénérer heatmap pour export
@@ -571,6 +521,20 @@ with col2:
         file_name=f"courbes_ca_{datetime.now().strftime('%Y%m%d')}.png",
         mime="image/png",
         help="Télécharge les courbes de CA par âge"
+    )
+
+with col3:
+    # Export graphique évolution cohorte sélectionnée
+    fig_evol_export = plot_cohort_evolution(monthly_stats, selected_cohort_str)
+    png_evolution = fig_to_bytes(fig_evol_export)
+    plt.close()
+
+    st.download_button(
+        label=f"Télécharger Évolution {selected_cohort_str} (PNG)",
+        data=png_evolution,
+        file_name=f"evolution_cohorte_{selected_cohort_str}_{datetime.now().strftime('%Y%m%d')}.png",
+        mime="image/png",
+        help=f"Télécharge le graphique d'évolution de la cohorte {selected_cohort_str}"
     )
 
 st.markdown("---")
