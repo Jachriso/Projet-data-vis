@@ -24,9 +24,6 @@ rfm.loc[(rfm['Frequency'] == 1) & (rfm['Monetary'] > rfm['Monetary'].median()),
 
 
 
-# ------------------------------------------------------
-# 1) Export CSV des données filtrées
-# ------------------------------------------------------
 
 st.subheader(" Export CSV des données filtrées")
 
@@ -47,9 +44,6 @@ else:
         mime="text/csv"
     )
 
-# ------------------------------------------------------
-# 2) Export CSV – Liste activable RFM
-# ------------------------------------------------------
 
 st.subheader(" Export liste activable (RFM)")
 
