@@ -1,11 +1,10 @@
 import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-from utils import session_setup
+from utils import session_setup, definitions_pages
 
 # Récupère les dataframes
 df, df_clients, df_filtered, df_clients_filtered = session_setup()
+
+accueil, kpis, cohortes, rfm, scenarios, plan_action = definitions_pages()
 
 # =============================================================================
 # HERO SECTION
@@ -26,50 +25,35 @@ st.markdown("<br>", unsafe_allow_html=True)
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.markdown("""
-    <div style='background: white; border-left: 5px solid #667eea; padding: 25px; 
-                border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: 280px;'>
-        <h3 style='color: #667eea; margin-top: 0;'>📊 Analyser</h3>
-        <p style='color: #555; line-height: 1.6;'>
-            Explorez vos <strong>KPIs</strong>, analysez la <strong>rétention par cohortes</strong> 
-            et découvrez vos <strong>segments RFM</strong> les plus performants.
-        </p>
-        <p style='color: #888; font-size: 0.9em; margin-top: 20px;'>
-            → Accédez aux Reports dans le menu
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.subheader("📊 Analyser")
+    st.write(
+        "Explorez vos **KPIs**, analysez la **rétention par cohortes** "
+        "et découvrez vos **segments RFM** les plus performants."
+    )
+    if st.button("→ Accéder aux KPIs", key="btn_kpis"):
+        st.switch_page(kpis)
+    if st.button("→ Accéder aux Cohortes", key="btn_cohortes"):
+        st.switch_page(cohortes)
+    if st.button("→ Accéder aux Segments RFM", key="btn_segments"):
+        st.switch_page(rfm)
 
 with col2:
-    st.markdown("""
-    <div style='background: white; border-left: 5px solid #f5576c; padding: 25px; 
-                border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: 280px;'>
-        <h3 style='color: #f5576c; margin-top: 0;'>🔮 Simuler</h3>
-        <p style='color: #555; line-height: 1.6;'>
-            Testez l'impact de vos décisions : <strong>remises</strong>, 
-            <strong>variations de marge</strong>, <strong>gains de rétention</strong>. 
-            Visualisez les résultats instantanément.
-        </p>
-        <p style='color: #888; font-size: 0.9em; margin-top: 20px;'>
-            → Utilisez les Scénarios
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.subheader("🛠️ Simuler")
+    st.write(
+        "Testez l'impact de vos décisions : **remises**, **variations de marge**, "
+        "**gains de rétention**. Visualisez les résultats instantanément."
+    )
+    if st.button("→ Utilisez les Scénarios", key="btn_scenarios"):
+        st.switch_page(scenarios)
 
 with col3:
-    st.markdown("""
-    <div style='background: white; border-left: 5px solid #43e97b; padding: 25px; 
-                border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: 280px;'>
-        <h3 style='color: #43e97b; margin-top: 0;'>📋 Agir</h3>
-        <p style='color: #555; line-height: 1.6;'>
-            Exportez vos <strong>listes clients activables</strong>, téléchargez 
-            vos <strong>graphiques</strong> et passez du constat à l'action.
-        </p>
-        <p style='color: #888; font-size: 0.9em; margin-top: 20px;'>
-            → Créez votre Plan d'action
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.subheader("📋 Agir")
+    st.write(
+        "Exportez vos **listes clients activables**, téléchargez vos **graphiques** " 
+        "et passez du constat à l'action."
+    )
+    if st.button("→ Créez votre Plan d'action", key="btn_plan"):
+        st.switch_page(plan_action)
 
 st.markdown("<br><br>", unsafe_allow_html=True)
 

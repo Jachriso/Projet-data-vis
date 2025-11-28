@@ -25,6 +25,16 @@ def load_data():
 
     return df, df_clients
 
+def definitions_pages():
+    accueil = st.Page("pages/accueil.py", title="Accueil", icon=":material/home:", default=True)
+    kpis = st.Page("pages/01_KPIs.py", title="KPIs", icon=":material/analytics:")
+    cohortes = st.Page("pages/02_Cohortes.py", title="Cohortes", icon=":material/diversity_3:")
+    rfm = st.Page("pages/03_Segments_RFM.py", title="Segments RFM", icon=":material/trending_up:")
+    scenarios = st.Page("pages/04_Scenarios.py", title="Scenarios", icon=":material/psychology:")
+    plan_action = st.Page("pages/05_Plan_action.py", title="Plan d'action", icon=":material/checklist:")
+
+    return accueil, kpis, cohortes, rfm, scenarios, plan_action
+
 def session_setup():
     df = st.session_state["df"]
     df_clients = st.session_state["df_clients"]
