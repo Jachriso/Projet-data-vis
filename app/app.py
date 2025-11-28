@@ -9,7 +9,14 @@ sns.set(style="whitegrid")
 # ----------------------------
 # LOAD DATA (depuis CSV compressés)
 # ----------------------------
-df, df_clients = load_data()
+if "df_loaded" not in st.session_state:
+    df, df_clients = load_data()
+    st.session_state["df_loaded"] = True
+    st.session_state["df"] = df
+    st.session_state["df_clients"] = df_clients
+else:
+    df = st.session_state["df"]
+    df_clients = st.session_state["df_clients"]
 
 
 # ----------------------------
