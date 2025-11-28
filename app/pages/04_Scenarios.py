@@ -37,14 +37,9 @@ with col2:
 # ----------------------------
 st.header("Politique de remise")
 
-col3, col4 = st.columns(2)
-with col3:
-    remise_moyenne = st.slider("Remise moyenne (%)", 0, 50, 0, 5,
+remise_moyenne = st.slider("Remise moyenne (%)", 0, 50, 0, 5,
                                help="Remise à appliquer")
-with col4:
-    application_remise = st.radio("Application de la remise",
-                                  ["Globale", "Par segment RFM"],
-                                  help="Appliquer la remise à tous les clients ou par segment")
+application_remise = "Globale"
 
 # ----------------------------
 # Section 3: Filtres de ciblage
