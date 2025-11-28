@@ -610,7 +610,7 @@ st.markdown("###  Analytics Visuels")
 col_chart1, col_chart2 = st.columns(2)
 
 with col_chart1:
-    st.markdown("<div class='chart-container'>", unsafe_allow_html=True)
+    
     st.markdown("**North Star — Tendance Journalière**")
     
     if not df_filtered.empty:
@@ -645,7 +645,7 @@ with col_chart1:
     st.markdown("</div>", unsafe_allow_html=True)
 
 with col_chart2:
-    st.markdown("<div class='chart-container'>", unsafe_allow_html=True)
+  
     st.markdown("**Distribution des Segments RFM**")
     
     if not rfm_df.empty:
@@ -667,7 +667,7 @@ with col_chart2:
 # ---------------------------
 # GRAPHIQUE CA PAR ÂGE DE COHORTE
 # ---------------------------
-st.markdown("<div class='chart-container'>", unsafe_allow_html=True)
+
 st.markdown("**CA moyen par âge de cohorte (jours)**")
 
 if not df_for_age.empty:
@@ -696,7 +696,7 @@ st.markdown("###  Performance par Catégorie")
 col_top1, col_top2 = st.columns(2)
 
 with col_top1:
-    st.markdown("<div class='chart-container'>", unsafe_allow_html=True)
+   
     st.markdown("**Top Produits**")
     
     if not df_filtered.empty:
@@ -723,7 +723,7 @@ with col_top1:
     st.markdown("</div>", unsafe_allow_html=True)
 
 with col_top2:
-    st.markdown("<div class='chart-container'>", unsafe_allow_html=True)
+
     st.markdown("**Performance par Pays**")
     
     if not df_filtered.empty:
@@ -797,7 +797,6 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_bottom = st.columns(1)[0]
 
 with col_bottom:
-    st.markdown("<div class='chart-container'>", unsafe_allow_html=True)
     st.markdown("**Activité Mensuelle**")
     
     if not df_filtered.empty:
