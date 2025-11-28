@@ -450,7 +450,6 @@ else:
     st.error(f"**Attention** - ROI négatif estimé à {roi_estime:.0f}%. Revoir la stratégie ou réallouer le budget.")
 
 # Coût par acquisition
-st.markdown(f"**Coût par client touché :** {cout_par_client:.2f} £")
 st.markdown(f"**Valeur moyenne récupérée par client :** {panier_moyen:.2f} £")
 
 st.markdown("---")
