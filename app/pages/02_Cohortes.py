@@ -21,7 +21,7 @@ plt.style.use('seaborn-v0_8-whitegrid')
 def load_data():
     """Charge les données nettoyées"""
     try:
-        df = pd.read_csv("data/processed/retail_clean_clients.csv")
+        df = pd.read_csv("data/processed/retail_clean_clients.csv.gz")
         df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
         return df
     except FileNotFoundError:

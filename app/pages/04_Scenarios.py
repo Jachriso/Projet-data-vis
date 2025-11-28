@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from app.utils import session_setup
+from utils import session_setup
 
 
 st.title("Simulation de scénarios - Paramètres avancés")
@@ -54,7 +54,7 @@ st.header("🎯 Ciblage")
 col5, col6 = st.columns(2)
 with col5:
     inclure_retours_scenario = st.checkbox("Inclure les retours dans la simulation",
-                                           value=include_returns,
+                                           value=st.session_state.get("include_returns", True),
                                            help="Inclure ou exclure les retours/annulations")
 
 with col6:

@@ -1,6 +1,6 @@
 import streamlit as st
 import matplotlib.pyplot as plt
-from app.utils import session_setup
+from utils import session_setup
 
 st.title("Liste des produits")
 

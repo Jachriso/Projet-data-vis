@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from io import BytesIO
-from app.utils import load_data
+from utils import load_data
 
 st.set_page_config(page_title="Dashboard Online Retail", layout="wide")
 sns.set(style="whitegrid")
@@ -19,7 +19,6 @@ df, df_clients = load_data()
 # ----------------------------
 # NAVIGATION
 # ----------------------------
-st.sidebar.header("Navigation")
 
 accueil = st.Page("pages/accueil.py", title="Accueil", icon=":material/home:", default=True)
 kpis = st.Page("pages/01_KPIs.py", title="KPIs", icon=":material/analytics:")
