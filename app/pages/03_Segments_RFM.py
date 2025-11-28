@@ -9,16 +9,6 @@ st.title("Segments RFM - Priorisation")
 # récupère les dataframes
 df, df_clients, df_filtered, df_clients_filtered = session_setup()
 
-# Afficher les filtres actifs
-st.info(
-    f"**Filtres actifs :**\n"
-    f"- **Période :** {st.session_state.get('date_range', ['N/A'])[0]} → {st.session_state.get('date_range', ['N/A'])[1]}\n"
-    f"- **Pays :** {', '.join(st.session_state.get('countries', ['Tous']))}\n"
-    f"- **Retours :** {'Inclus' if st.session_state.get('include_returns', True) else '❌ Exclus'}"
-)
-
-
-
 # --- Page RFM ---
 snapshot_date = df_clients_filtered["InvoiceDate"].max() + pd.Timedelta(days=1)
 

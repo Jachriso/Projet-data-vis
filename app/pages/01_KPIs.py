@@ -5,25 +5,13 @@ from datetime import timedelta
 import altair as alt
 import io
 import matplotlib.pyplot as plt
+from utils import session_setup
 
 
 st.set_page_config(page_title="Bienvenue sur la page des KPI !", layout="wide", page_icon="")
 
-DATA_PATH = "../data/processed/retail_clean_full.csv.gz"
-
-@st.cache_data
-def load_data(path=DATA_PATH):
-    df = pd.read_csv(path, compression="gzip")
-    df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
-    df['Revenue'] = df['Quantity'] * df['Price']
-    df['Invoice'] = df['Invoice'].astype(str)
-    df['Annulation'] = df['Invoice'].str.startswith('C')
-    df['Day'] = df['InvoiceDate'].dt.date
-    df['Month'] = df['InvoiceDate'].dt.to_period('M').dt.to_timestamp()
-    df['Year'] = df['InvoiceDate'].dt.year
-    df['Hour'] = df['InvoiceDate'].dt.hour
-    return df
-
+# récupère les dataframes
+df, df_clients, df_filtered, df_clients_filtered = session_setup()
 
 def apply_return_mode(df, mode):
     df = df.copy()
@@ -232,8 +220,7 @@ st.markdown("""
 # ---------------------------
 # CHARGEMENT DES DONNEES
 # ---------------------------
-with st.spinner("Chargement des données..."):
-    df_raw = load_data()
+df_raw = df
 
 # ---------------------------
 # SIDEBAR FILTRES
