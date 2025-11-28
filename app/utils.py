@@ -22,7 +22,6 @@ def load_data():
     df_clients['is_return'] = df_clients['Quantity'] < 0
     df_clients['is_damage'] = (df_clients['Quantity'] < 0) & (df_clients['Price'] == 0)
 
-# jeznbdpiéjê
 
     return df, df_clients
 
@@ -56,3 +55,34 @@ def download_chart(fig, file_name, label=" Télécharger le graphique"):
         file_name=file_name,
         mime="image/png"
     )
+
+def compute_rfm(df_clients_filtered):
+    
+    snapshot = df_clients_filtered['InvoiceDate'].max() + pd.Timedelta(days=1)
+
+    rfm = df_clients_filtered.groupby('Customer ID').agg({
+        'InvoiceDate': lambda x: (snapshot - x.max()).days,
+        'Invoice': 'count',
+        'Revenue': 'sum'
+    }).reset_index()
+
+    rfm.columns = ['Customer ID', 'Recency', 'Frequency', 'Monetary']
+
+    return rfm
+
+#  Fonction export PNG réutilisable
+
+def export_png(fig, filename="graphique.png", title="", filters_info=""):
+    fig.suptitle(f"{title}\n{filters_info}", fontsize=11)
+
+    buf = BytesIO()
+    fig.savefig(buf, format="png", bbox_inches="tight")
+    buf.seek(0)
+
+    st.download_button(
+        label=f"📥 Télécharger PNG : {filename}",
+        data=buf,
+        file_name=filename,
+        mime="image/png"
+    )
+    
