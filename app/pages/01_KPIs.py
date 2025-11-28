@@ -10,7 +10,6 @@ from utils import session_setup
 
 st.set_page_config(page_title="Bienvenue sur la page des KPI !", layout="wide", page_icon="")
 
-# récupère les dataframes
 df, df_clients, df_filtered, df_clients_filtered = session_setup()
 
 def apply_return_mode(df, mode):
@@ -217,14 +216,10 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------
-# CHARGEMENT DES DONNEES
-# ---------------------------
+
 df_raw = df
 
-# ---------------------------
-# SIDEBAR FILTRES
-# ---------------------------
+
 with st.sidebar:
     st.markdown("###  Filtres Globaux")
     min_date = df_raw['InvoiceDate'].min().date()
@@ -247,9 +242,6 @@ if country_opt:
 
 df_filtered = apply_return_mode(df_filtered, mode_returns)
 
-# ---------------------------
-# HEADER SECTION
-# ---------------------------
 col_logo, col_title = st.columns([1, 4])
 with col_logo:
     st.markdown("<h1 style='text-align: center;'></h1>", unsafe_allow_html=True)
@@ -265,9 +257,7 @@ if mode_returns in ['exclure', 'neutraliser']:
 else:
     impact_retours_pct = 0
 
-# ---------------------------
-# CALCUL DES KPI
-# ---------------------------
+
 kpis = compute_basic_kpis(df_filtered)
 clv_info = clv_baseline_90d(df_filtered)
 rfm_df = compute_rfm(df_filtered)
@@ -285,16 +275,14 @@ if not df_for_age.empty:
 else:
     ca_cohort_0_30 = 0
 
-# Calcul taille segment RFM Champion
+
 if not rfm_df.empty:
     rfm_df['segment_label'] = rfm_df['rfm_score'].apply(rfm_segment_label)
     champion_count = rfm_df[rfm_df['segment_label'] == 'Champion'].shape[0]
 else:
     champion_count = 0
 
-# ---------------------------
-# KPI MONÉTAIRES AVEC EFFECTIFS + DELTA VS PÉRIODE PRÉCÉDENTE
-# ---------------------------
+
 
 # Calcul période précédente
 prev_start = start_date - (end_date - start_date) - timedelta(days=1)
@@ -344,9 +332,7 @@ def compute_m3_retention(df):
 
 df_retention = compute_m3_retention(df_filtered)
 
-# ---------------------------
-# KPI CARDS - LES 7 METRIQUES AVEC CHIFFRE D'AFFAIRES
-# ---------------------------
+
 
 st.markdown("---")
 
@@ -523,8 +509,7 @@ with col8:  # Centrer l'impact retours au milieu
         **Utilité:** Mesurer l'impact des retours sur la performance
         """)
 
-# QUICK INSIGHTS - 3 GRAPHIQUES CÔTE À CÔTE
-# =============================================================================
+
 st.markdown("---")
 st.markdown("<h2 style='text-align: center; color: #333;'> Insights Clés</h2>", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
@@ -587,9 +572,6 @@ with insight_col3:
 
 st.markdown("<br><br>", unsafe_allow_html=True)
 
-# ---------------------------
-# SCORECARD SECTION - MAINTENANT 6 METRIQUES
-# ---------------------------
 
 st.markdown("---")
 st.markdown("###  Analytics Visuels")
@@ -651,9 +633,7 @@ with col_chart2:
         st.info("ℹ️ Pas assez de données pour calculer les segments RFM")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------------------------
-# GRAPHIQUE CA PAR ÂGE DE COHORTE
-# ---------------------------
+
 
 st.markdown("**CA moyen par âge de cohorte (jours)**")
 
@@ -673,13 +653,11 @@ else:
     st.info("ℹ️ Pas de données clients pour afficher le CA par âge de cohorte")
 st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------------------------
-# PERFORMANCE GRIDS - 2 LIGNES
-# ---------------------------
+
 st.markdown("---")
 st.markdown("###  Performance par Catégorie")
 
-# LIGNE 1 - 2 VISUELS EN HAUT
+
 col_top1, col_top2 = st.columns(2)
 
 with col_top1:
@@ -779,7 +757,7 @@ with col_top2:
         st.info("ℹ️ Aucune donnée disponible")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# LIGNE 2 - ACTIVITÉ MENSUELLE EN ROUGE
+
 st.markdown("<br>", unsafe_allow_html=True)
 col_bottom = st.columns(1)[0]
 
@@ -794,7 +772,7 @@ with col_bottom:
             chart = alt.Chart(monthly).mark_bar(
                 cornerRadiusTopLeft=3,
                 cornerRadiusTopRight=3,
-                color='#f5576c'  # ROUGE au lieu de bleu
+                color='#f5576c' 
             ).encode(
                 x=alt.X('Mois:T', title='Mois', axis=alt.Axis(format='%b %Y')),
                 y=alt.Y('CA:Q', title='CA (£)'),
@@ -802,7 +780,7 @@ with col_bottom:
                     alt.Tooltip('Mois:T', title='Mois', format='%B %Y'),
                     alt.Tooltip('CA:Q', title='Chiffre d\'Affaires', format='$.0f')
                 ]
-            ).properties(height=300)  # Un peu plus haut pour mieux voir
+            ).properties(height=300)  
             
             st.altair_chart(chart, use_container_width=True)
         else:
@@ -811,13 +789,7 @@ with col_bottom:
         st.info("ℹ️ Aucune donnée disponible")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------------------------
-# ANALYSE DE COHORTE DE RÉTENTION
-# ---------------------------
 
-   # ---------------------------
-# ANALYSE DE COHORTE DE RÉTENTION
-# ---------------------------
 st.markdown("---")
 st.markdown("###   Analyse de Cohorte de Rétention")
 
@@ -909,8 +881,7 @@ if not retention_matrix.empty:
         st.altair_chart(heatmap + text, use_container_width=True)
     else:
         st.info("ℹ️ Pas assez de données pour l'analyse de cohorte")
-    
-    # Tableau détaillé (version simplifiée sans formatage problématique)
+
     with st.expander("Appuyez pour voir le tableau détaillé des rétentions", expanded=False):
         # Créer une copie pour l'affichage avec le symbole %
         display_table = display_df.copy()
@@ -921,10 +892,10 @@ if not retention_matrix.empty:
         
         st.dataframe(display_table, use_container_width=True)
     
-    # Insights
+    
     st.markdown("**Rétentions :**")
     
-    # Calculer la rétention moyenne à M+1, M+3, M+6
+  
     insights_data = []
     
     if 1 in retention_matrix.columns:
@@ -945,11 +916,8 @@ if not retention_matrix.empty:
 else:
     st.info("ℹ️ Pas assez de données pour calculer l'analyse de cohorte")
 
-# Supprimer l'ancien graphique de rétention M+3 qui est maintenant redondant
 
-# ---------------------------
-# FOOTER
-# ---------------------------
+
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666; padding: 2rem;'>
