@@ -493,7 +493,7 @@ st.markdown("---")
 # Section export PNG
 st.subheader("Export graphiques (PNG)")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 with col1:
     # Régénérer heatmap pour export
@@ -523,6 +523,18 @@ with col2:
         help="Télécharge les courbes de CA par âge"
     )
 
+with col3:
+    # Export graphique évolution cohorte sélectionnée
+    fig_evol_export = plot_cohort_evolution(monthly_stats, selected_cohort_str)
+    png_evolution = fig_to_bytes(fig_evol_export)
+    plt.close()
+
+    st.download_button(
+        label=f"Télécharger Évolution {selected_cohort_str} (PNG)",
+        data=png_evolution,
+        file_name=f"evolution_cohorte_{selected_cohort_str}_{datetime.now().strftime('%Y%m%d')}.png",
+        mime="image/png",
+        help=f"Télécharge le graphique d'évolution de la cohorte {selected_cohort_str}"
+    )
+
 st.markdown("---")
-
-
