@@ -9,7 +9,7 @@ st.title("Segments RFM - Priorisation")
 # récupère les dataframes
 df, df_clients, df_filtered, df_clients_filtered = session_setup()
 
-# --- Page RFM ---
+
 snapshot_date = df_clients_filtered["InvoiceDate"].max() + pd.Timedelta(days=1)
 
 
@@ -58,7 +58,7 @@ def compute_rfm(df_clients_filtered):
 rfm = compute_rfm(df_clients_filtered)
 
 
-#PRE-CALCUL DES STATISTIQUES PAR SEGMENT
+
 @st.cache_data
 def compute_segment_stats(rfm):
     stats = rfm.groupby("Segment").agg(
@@ -73,7 +73,7 @@ def compute_segment_stats(rfm):
 
 segment_stats, ca_global = compute_segment_stats(rfm)
 
-# --- EXPLICATION DES SCORES ---
+
 st.subheader("Qu'est ce qu'un score RFM ?")
 
 st.markdown("Le score RFM est une méthode simple pour analyser le comportement de nos clients !")
@@ -90,7 +90,7 @@ Chaque score va de **1 à 5**.
 - **311** → Client ancien, peu fidèle, faible panier
 """, unsafe_allow_html=True)
 
-# --- SEGMENTS ---
+
 st.subheader("Classement des segments RFM")
 
 labels_df = pd.DataFrame({
@@ -107,7 +107,7 @@ labels_df = pd.DataFrame({
 labels_df.index = range(1, len(labels_df) + 1)
 st.dataframe(labels_df, use_container_width=True)
 
-# --- Filtres ---
+
 segments_list = sorted(rfm["Segment"].unique())
 select_segments = st.multiselect(
     "Filtrer par segment RFM",
@@ -119,17 +119,16 @@ rfm_filtered = rfm[rfm["Segment"].isin(select_segments)]
 
 st.markdown(f"### Effectif : {len(rfm_filtered)} clients")
 
-# --- Tableau principal ---
+
 st.subheader("Tableau RFM complet")
 st.dataframe(rfm_filtered, use_container_width=True)
 
-# --- Ajouter Volume (total articles achetés par client) ---
 volume_df = df_clients_filtered.groupby("Customer ID")["Quantity"].sum().reset_index()
 volume_df.rename(columns={"Quantity": "Volume"}, inplace=True)
 rfm = rfm.merge(volume_df, left_on="CustomerID", right_on="Customer ID", how="left")
 rfm.drop(columns=["Customer ID"], inplace=True)
 
-# --- Ajouter Marge (Revenue - Cost) si tu as une colonne Cost ---
+
 if "Cost" in df_clients_filtered.columns:
     df_clients_filtered["Margin"] = df_clients_filtered["Revenue"] - df_clients_filtered["Cost"]
     margin_df = df_clients_filtered.groupby("Customer ID")["Margin"].sum().reset_index()
@@ -138,7 +137,7 @@ if "Cost" in df_clients_filtered.columns:
 else:
     rfm["Margin"] = rfm["Monetary"]
 
-# --- Graphiques avec téléchargement ---
+
 col1, col2 = st.columns(2)
 
 with col1:
@@ -169,7 +168,7 @@ with col2:
     plt.xticks(rotation=45, ha='right')
     st.pyplot(fig_dist)
 
-# Boutons de téléchargement au même niveau
+
 col1_btn, col2_btn = st.columns(2)
 
 with col1_btn:
@@ -178,7 +177,7 @@ with col1_btn:
 with col2_btn:
     download_chart(fig_dist, "distribution_segments.png")
 
-# --- Volume total par segment (graphique en aires) ---
+
 st.subheader("Volume total d'articles par segment")
 volume_segment = rfm.groupby("Segment")["Volume"].sum().sort_values(ascending=False)
 fig_volume, ax_volume = plt.subplots(figsize=(7,3.5))
@@ -194,10 +193,10 @@ ax_volume.set_title("Volume total par segment")
 ax_volume.grid(True, alpha=0.3)
 st.pyplot(fig_volume)
 
-# Téléchargement
+
 download_chart(fig_volume, "volume_par_segment.png")
 
-# --- Top 3 segments par CA ---
+
 st.subheader("Top 3 segments par CA total")
 top_segments = (
     rfm.groupby("Segment")["Monetary"]
@@ -208,7 +207,7 @@ top_segments = (
 top_segments.index += 1
 st.table(top_segments.head(3))
 
-# --- Metrics segment : CA / Marge / Panier moyen ---
+
 st.subheader("Synthèse par segment")
 segment_metrics = df_clients_filtered.groupby("Customer ID").agg({
     "Revenue": "sum",
@@ -227,7 +226,7 @@ rfm_metrics = rfm_metrics.groupby("Segment").agg({
 rfm_metrics["Panier_moyen"] = rfm_metrics["Monetary"] / rfm_metrics["CustomerID"]
 st.dataframe(rfm_metrics, use_container_width=True)
 
-# --- Priorités CRM ---
+
 st.subheader("Priorités d'activation CRM")
 st.markdown("""
 ### Priorités recommandées
@@ -239,17 +238,17 @@ st.markdown("""
 - **Perdu** → Campagnes agressives (peu de ROI attendu)
 """)
 
-# --- RECOMMANDATIONS INTERACTIVES ---
+
 st.markdown("---")
 st.subheader("Recommandations d'actions par segment")
 
-# Sélection du segment pour les recommandations
+
 segment_selected = st.selectbox(
     "Sélectionnez un segment pour voir les recommandations détaillées :",
     options=["Champion", "Fidèle", "À potentiel", "À réactiver", "Perdu", "Autre"]
 )
 
-# Dictionnaire des recommandations basées sur RFM
+
 recommendations = {
     "Champion": {
         "priorite": "CRITIQUE",
@@ -337,7 +336,7 @@ recommendations = {
     }
 }
 
-# Affichage des recommandations pour le segment sélectionné
+
 reco = recommendations[segment_selected]
 
 # Métriques du segment sélectionné
@@ -367,14 +366,14 @@ col_r3.metric("Montant moy.", f"{panier_moyen:,.0f} £")
 
 st.markdown("---")
 
-# Analyse RFM du segment
+
 st.markdown("#### Analyse des scores RFM")
 st.info(f"**Profil RFM :** {reco['analyse_rfm']}")
 st.markdown(f"**Comportement observé :** {reco['comportement']}")
 
 st.markdown("---")
 
-# Détails des recommandations
+
 col_r1, col_r2 = st.columns([3, 2])
 
 with col_r1:
@@ -391,7 +390,7 @@ with col_r2:
     st.success(reco["roi"])
     
 
-# Simulateur d'impact
+
 st.markdown("---")
 st.markdown("### Simulateur d'impact de campagne")
 
@@ -414,7 +413,7 @@ with col_sim2:
     )
 
 
-# Calcul d'impact estimé
+
 clients_touches = nb_clients
 clients_convertis = int(clients_touches * (taux_conversion / 100))
 revenu_estime = clients_convertis * panier_moyen
@@ -439,12 +438,12 @@ elif roi_estime > 0:
 else:
     st.error(f"**Attention** - ROI négatif estimé à {roi_estime:.0f}%. Revoir la stratégie ou réallouer le budget.")
 
-# Coût par acquisition
+
 st.markdown(f"**Valeur moyenne récupérée par client :** {panier_moyen:.2f} £")
 
 st.markdown("---")
 
-# --- Export ---
+
 if st.button(" Exporter CSV"):
     rfm_filtered.to_csv("export_rfm_segments.csv", index=False)
     st.success("✅ Exporté : export_rfm_segments.csv")
