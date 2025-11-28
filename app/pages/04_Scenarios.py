@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from utils import session_setup
 
 
-st.title("Simulation de scénarios - Paramètres avancés")
+st.title("Simulation de scénarios")
 
 # récupère les dataframes
 df, df_clients, df_filtered, df_clients_filtered = session_setup()
@@ -16,7 +16,7 @@ df_scenario = df_filtered.copy()
 # ----------------------------
 # Section 1: Paramètres de simulation
 # ----------------------------
-st.header("🎯 Paramètres de simulation")
+st.header("Paramètres de simulation")
 
 col1, col2 = st.columns(2)
 
@@ -35,7 +35,7 @@ with col2:
 # ----------------------------
 # Section 2: Remise et application
 # ----------------------------
-st.header("💰 Politique de remise")
+st.header("Politique de remise")
 
 col3, col4 = st.columns(2)
 with col3:
@@ -49,26 +49,19 @@ with col4:
 # ----------------------------
 # Section 3: Filtres de ciblage
 # ----------------------------
-st.header("🎯 Ciblage")
+inclure_retours_scenario = True
 
-col5, col6 = st.columns(2)
-with col5:
-    inclure_retours_scenario = st.checkbox("Inclure les retours dans la simulation",
-                                           value=st.session_state.get("include_returns", True),
-                                           help="Inclure ou exclure les retours/annulations")
-
-with col6:
-    # Préparer la liste des cohortes
-    df_scenario['CohortMonth'] = df_scenario.groupby('Customer ID')['InvoiceDate'].transform('min').dt.to_period(
-        'M')
-    cohortes_disponibles = ['Toutes'] + sorted(df_scenario['CohortMonth'].dropna().astype(str).unique().tolist())
-    cohorte_cible = st.selectbox("Cohorte cible", cohortes_disponibles,
-                                 help="Sélectionner une cohorte spécifique ou toutes")
+# Préparer la liste des cohortes
+df_scenario['CohortMonth'] = df_scenario.groupby('Customer ID')['InvoiceDate'].transform('min').dt.to_period(
+    'M')
+cohortes_disponibles = ['Toutes'] + sorted(df_scenario['CohortMonth'].dropna().astype(str).unique().tolist())
+cohorte_cible = st.selectbox("Cohorte cible", cohortes_disponibles,
+                             help="Sélectionner une cohorte spécifique ou toutes")
 
 # ----------------------------
 # Section 4: Calculs baseline
 # ----------------------------
-st.header("📊 Résultats de la simulation")
+st.header("Résultats de la simulation")
 
 # Filtrer selon les paramètres
 if not inclure_retours_scenario:
@@ -158,7 +151,7 @@ delta_retention_pct = (delta_retention / baseline_retention * 100) if baseline_r
 # Section 6: Affichage des résultats
 # ----------------------------
 
-st.subheader("📈 Comparaison Baseline vs Scénario")
+st.subheader("Comparaison Baseline vs Scénario")
 
 col_metric1, col_metric2, col_metric3 = st.columns(3)
 
@@ -167,7 +160,7 @@ with col_metric1:
         "Chiffre d'affaires (£)",
         f"{scenario_ca:,.2f}",
         f"{delta_ca:+,.2f} ({delta_ca_pct:+.1f}%)",
-        help=f"Baseline: £{baseline_ca:,.2f}"
+        help=f"Somme des ventes de l'entreprise"
     )
 
 with col_metric2:
@@ -175,7 +168,7 @@ with col_metric2:
         "CLV moyen (£)",
         f"{clv_scenario:,.2f}",
         f"{delta_clv:+,.2f} ({delta_clv_pct:+.1f}%)",
-        help=f"Baseline: £{clv_baseline:,.2f}"
+        help=f"Valeur Vie Client, bénéfice net total qu'un client peut générer pour une entreprise tout au long de sa relation commerciale"
     )
 
 with col_metric3:
@@ -183,14 +176,14 @@ with col_metric3:
         "Taux de rétention",
         f"{scenario_retention:.2%}",
         f"{delta_retention:+.2%} ({delta_retention_pct:+.1f}%)",
-        help=f"Baseline: {baseline_retention:.2%}"
+        help=f"Proportion de clients ou d'employés qu'une entreprise conserve sur une période donnée"
     )
 
 # ----------------------------
 # Section 7: Visualisations
 # ----------------------------
 
-st.subheader("📊 Visualisation des impacts")
+st.subheader("Visualisation des impacts")
 
 # Graphique 1: Comparaison CA
 col_viz1, col_viz2 = st.columns(2)
@@ -220,7 +213,7 @@ with col_viz2:
     st.pyplot(fig2)
 
 # Graphique 2: Waterfall des impacts
-st.subheader("🌊 Analyse en cascade des impacts")
+st.subheader("Analyse en cascade des impacts")
 
 fig3, ax3 = plt.subplots(figsize=(12, 5))
 
@@ -256,7 +249,7 @@ st.pyplot(fig3)
 # Section 8: Tableau récapitulatif
 # ----------------------------
 
-st.subheader("📋 Tableau récapitulatif")
+st.subheader("Tableau récapitulatif")
 
 recap_data = {
     'Métrique': ['Chiffre d\'affaires (£)', 'CLV moyen (£)', 'Taux de rétention (%)',
