@@ -1,9 +1,5 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 import seaborn as sns
-from io import BytesIO
 from utils import load_data
 
 st.set_page_config(page_title="Dashboard Online Retail", layout="wide")
@@ -19,7 +15,6 @@ df, df_clients = load_data()
 # ----------------------------
 # NAVIGATION
 # ----------------------------
-
 accueil = st.Page("pages/accueil.py", title="Accueil", icon=":material/home:", default=True)
 kpis = st.Page("pages/01_KPIs.py", title="KPIs", icon=":material/analytics:")
 cohortes = st.Page("pages/02_Cohortes.py", title="Cohortes", icon=":material/diversity_3:")
@@ -34,9 +29,6 @@ pg = st.navigation(
         "Tools": [scenarios, plan_action]
     }
 )
-
-pg.run()
-
 
 # ----------------------------
 # SIDEBAR FILTERS
@@ -63,3 +55,9 @@ st.session_state["df"] = df
 st.session_state["df_clients"] = df_clients
 st.session_state["df_filtered"] = df_filtered
 st.session_state["df_clients_filtered"] = df_clients_filtered
+st.session_state["include_returns"] = include_returns
+st.session_state["date_range"] = date_range
+st.session_state["countries"] = countries
+
+pg.run()
+
