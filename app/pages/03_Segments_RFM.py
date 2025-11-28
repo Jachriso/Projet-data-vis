@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+from app.utils import session_setup
 
 st.title("Segments RFM - Priorisation")
 
-#récupère les data depuis app.py
-df = st.session_state["df"]
-df_clients = st.session_state["df_clients"]
+# récupère les dataframes
+df, df_clients, df_filtered, df_clients_filtered = session_setup()
 
 
 # --- Page RFM ---
