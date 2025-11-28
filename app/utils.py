@@ -4,8 +4,8 @@ import pandas as pd
 @st.cache_data
 def load_data():
     # Lecture des CSV compressés
-    df = pd.read_csv("data/processed/retail_clean_full.csv.gz", compression="gzip")
-    df_clients = pd.read_csv("data/processed/retail_clean_clients.csv.gz", compression="gzip")
+    df = pd.read_csv("../data/processed/retail_clean_full.csv.gz", compression="gzip")
+    df_clients = pd.read_csv("../data/processed/retail_clean_clients.csv.gz", compression="gzip")
 
     # S'assurer que les dates sont bien au format datetime
     df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
