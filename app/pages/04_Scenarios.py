@@ -79,7 +79,7 @@ revenue_per_client_baseline = df_scenario.groupby('CustomerID')['Revenue'].sum()
 discount_rate_baseline = taux_actualisation / 100
 clv_baseline = revenue_per_client_baseline * baseline_retention / (
             1 + discount_rate_baseline - baseline_retention) if (
-                                                                            1 + discount_rate_baseline - baseline_retention) > 0 else 0
+            1 + discount_rate_baseline - baseline_retention) > 0 else 0
 
 # ----------------------------
 # Section 5: Calculs scénario
@@ -132,7 +132,7 @@ revenue_per_client_scenario = scenario_ca / baseline_nb_clients
 discount_rate_scenario = taux_actualisation / 100
 clv_scenario = revenue_per_client_scenario * scenario_retention / (
             1 + discount_rate_scenario - scenario_retention) if (
-                                                                            1 + discount_rate_scenario - scenario_retention) > 0 else 0
+            1 + discount_rate_scenario - scenario_retention) > 0 else 0
 
 # Calcul des deltas
 delta_ca = scenario_ca - baseline_ca
@@ -145,7 +145,6 @@ delta_retention_pct = (delta_retention / baseline_retention * 100) if baseline_r
 # ----------------------------
 # Section 6: Affichage des résultats
 # ----------------------------
-
 st.subheader("Comparaison Baseline vs Scénario")
 
 col_metric1, col_metric2, col_metric3 = st.columns(3)
@@ -177,7 +176,6 @@ with col_metric3:
 # ----------------------------
 # Section 7: Visualisations
 # ----------------------------
-
 st.subheader("Visualisation des impacts")
 
 # Graphique 1: Comparaison CA
@@ -243,7 +241,6 @@ st.pyplot(fig3)
 # ----------------------------
 # Section 8: Tableau récapitulatif
 # ----------------------------
-
 st.subheader("Tableau récapitulatif")
 
 recap_data = {
