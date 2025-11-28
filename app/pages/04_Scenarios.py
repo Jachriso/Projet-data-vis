@@ -13,9 +13,7 @@ df, df_clients, df_filtered, df_clients_filtered = session_setup()
 # Préparer les données baseline
 df_scenario = df_filtered.copy()
 
-# ----------------------------
-# Section 1: Paramètres de simulation
-# ----------------------------
+# Paramètres de simulation
 st.header("Paramètres de simulation")
 
 col1, col2 = st.columns(2)
@@ -32,18 +30,16 @@ with col2:
     retention_change = st.slider("Changement rétention (r) (%)", -50, 100, 0, 5,
                                  help="Impact sur le taux de rétention client")
 
-# ----------------------------
-# Section 2: Remise et application
-# ----------------------------
+# Remise et application
+
 st.header("Politique de remise")
 
 remise_moyenne = st.slider("Remise moyenne (%)", 0, 50, 0, 5,
                                help="Remise à appliquer")
 application_remise = "Globale"
 
-# ----------------------------
-# Section 3: Filtres de ciblage
-# ----------------------------
+# Filtres de ciblage
+
 inclure_retours_scenario = True
 
 # Préparer la liste des cohortes
@@ -53,9 +49,8 @@ cohortes_disponibles = ['Toutes'] + sorted(df_scenario['CohortMonth'].dropna().a
 cohorte_cible = st.selectbox("Cohorte cible", cohortes_disponibles,
                              help="Sélectionner une cohorte spécifique ou toutes")
 
-# ----------------------------
-# Section 4: Calculs baseline
-# ----------------------------
+# Calculs baseline
+
 st.header("Résultats de la simulation")
 
 # Filtrer selon les paramètres
@@ -81,9 +76,7 @@ clv_baseline = revenue_per_client_baseline * baseline_retention / (
             1 + discount_rate_baseline - baseline_retention) if (
             1 + discount_rate_baseline - baseline_retention) > 0 else 0
 
-# ----------------------------
-# Section 5: Calculs scénario
-# ----------------------------
+# Calculs scénario
 
 # Impact marge
 scenario_marge_multiplier = 1 + (marge_change / 100)
@@ -142,9 +135,8 @@ delta_clv_pct = (delta_clv / clv_baseline * 100) if clv_baseline > 0 else 0
 delta_retention = scenario_retention - baseline_retention
 delta_retention_pct = (delta_retention / baseline_retention * 100) if baseline_retention > 0 else 0
 
-# ----------------------------
-# Section 6: Affichage des résultats
-# ----------------------------
+# Affichage des résultats
+
 st.subheader("Comparaison Baseline vs Scénario")
 
 col_metric1, col_metric2, col_metric3 = st.columns(3)
@@ -173,9 +165,8 @@ with col_metric3:
         help=f"Proportion de clients ou d'employés qu'une entreprise conserve sur une période donnée"
     )
 
-# ----------------------------
-# Section 7: Visualisations
-# ----------------------------
+# Visualisations
+
 st.subheader("Visualisation des impacts")
 
 # Graphique 1: Comparaison CA
@@ -238,9 +229,8 @@ for i, (k, v) in enumerate(impacts.items()):
 
 st.pyplot(fig3)
 
-# ----------------------------
-# Section 8: Tableau récapitulatif
-# ----------------------------
+# Tableau récapitulatif
+
 st.subheader("Tableau récapitulatif")
 
 recap_data = {
