@@ -80,7 +80,7 @@ def export_png(fig, filename="graphique.png", title="", filters_info=""):
     buf.seek(0)
 
     st.download_button(
-        label=f"📥 Télécharger PNG : {filename}",
+        label=f" Télécharger PNG : {filename}",
         data=buf,
         file_name=filename,
         mime="image/png"
