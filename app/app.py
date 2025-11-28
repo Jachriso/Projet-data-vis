@@ -21,8 +21,9 @@ st.session_state["df"] = df
 st.session_state["df_clients"] = df_clients
 
 
+st.sidebar.header("Navigation")
 
-
+accueil = st.Page("pages/accueil.py", title="Accueil", icon=":material/home:")
 kpis = st.Page("pages/01_KPIs.py", title="KPIs", icon=":material/analytics:")
 cohortes = st.Page("pages/02_Cohortes.py", title="Cohortes", icon=":material/diversity_3:")
 rfm = st.Page("pages/03_Segments_RFM.py", title="Segments RFM", icon=":material/trending_up:")
@@ -31,8 +32,9 @@ plan_action = st.Page("pages/05_Plan_action.py", title="Plan d'action", icon=":m
 
 pg = st.navigation(
     {
+        "": [accueil],
         "Reports": [kpis, cohortes, rfm],
-        "Tools": [scenarios, plan_action],
+        "Tools": [scenarios, plan_action]
     }
 )
 
