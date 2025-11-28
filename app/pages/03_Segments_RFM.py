@@ -1,18 +1,28 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from utils import session_setup
+from utils import session_setup, download_chart
+import io
 
 st.title("Segments RFM - Priorisation")
 
 # récupère les dataframes
 df, df_clients, df_filtered, df_clients_filtered = session_setup()
 
+# Afficher les filtres actifs
+st.info(
+    f"**Filtres actifs :**\n"
+    f"- **Période :** {st.session_state.get('date_range', ['N/A'])[0]} → {st.session_state.get('date_range', ['N/A'])[1]}\n"
+    f"- **Pays :** {', '.join(st.session_state.get('countries', ['Tous']))}\n"
+    f"- **Retours :** {'Inclus' if st.session_state.get('include_returns', True) else '❌ Exclus'}"
+)
+
+
 
 # --- Page RFM ---
-snapshot_date = df_clients["InvoiceDate"].max() + pd.Timedelta(days=1)
+snapshot_date = df_clients_filtered["InvoiceDate"].max() + pd.Timedelta(days=1)
 
-rfm = df_clients.groupby("Customer ID").agg({
+rfm = df_clients_filtered.groupby("Customer ID").agg({
     "InvoiceDate": lambda x: (snapshot_date - x.max()).days,
     "Invoice": "count",
     "Revenue": "sum"
@@ -21,9 +31,9 @@ rfm = df_clients.groupby("Customer ID").agg({
 rfm.columns = ["CustomerID","Recency","Frequency","Monetary"]
 
 # --- Scores ---
-rfm['R_Score'] = pd.qcut(rfm['Recency'], 5, labels=[5,4,3,2,1])
-rfm['F_Score'] = pd.qcut(rfm['Frequency'], 5, labels=[1,2,3,4,5])
-rfm['M_Score'] = pd.qcut(rfm['Monetary'], 5, labels=[1,2,3,4,5])
+rfm['R_Score'] = pd.qcut(rfm['Recency'], 5, labels=[5,4,3,2,1], duplicates='drop')
+rfm['F_Score'] = pd.qcut(rfm['Frequency'], 5, labels=[1,2,3,4,5], duplicates='drop')
+rfm['M_Score'] = pd.qcut(rfm['Monetary'], 5, labels=[1,2,3,4,5], duplicates='drop')
 
 rfm['RFM_Score'] = (
     rfm['R_Score'].astype(str) +
@@ -74,15 +84,13 @@ labels_df = pd.DataFrame({
         "Achètent souvent, récemment, gros panier",
         "Clients réguliers et actifs",
         "Peu récents mais gros potentiel",
-        "En perte d’activité, à relancer",
+        "En perte d'activité, à relancer",
         "Inactifs et faible contribution"
     ]
 })
 
-# Ajouter un index pour le numéro du segment (1 = Champion, etc.)
 labels_df.index = range(1, len(labels_df) + 1)
 st.dataframe(labels_df, use_container_width=True)
-
 
 # --- Filtres ---
 segments_list = sorted(rfm["Segment"].unique())
@@ -101,57 +109,78 @@ st.subheader("Tableau RFM complet")
 st.dataframe(rfm_filtered, use_container_width=True)
 
 # --- Ajouter Volume (total articles achetés par client) ---
-volume_df = df_clients.groupby("Customer ID")["Quantity"].sum().reset_index()
+volume_df = df_clients_filtered.groupby("Customer ID")["Quantity"].sum().reset_index()
 volume_df.rename(columns={"Quantity": "Volume"}, inplace=True)
 rfm = rfm.merge(volume_df, left_on="CustomerID", right_on="Customer ID", how="left")
 rfm.drop(columns=["Customer ID"], inplace=True)
 
 # --- Ajouter Marge (Revenue - Cost) si tu as une colonne Cost ---
-if "Cost" in df_clients.columns:
-    df_clients["Margin"] = df_clients["Revenue"] - df_clients["Cost"]
-    margin_df = df_clients.groupby("Customer ID")["Margin"].sum().reset_index()
+if "Cost" in df_clients_filtered.columns:
+    df_clients_filtered["Margin"] = df_clients_filtered["Revenue"] - df_clients_filtered["Cost"]
+    margin_df = df_clients_filtered.groupby("Customer ID")["Margin"].sum().reset_index()
     rfm = rfm.merge(margin_df, left_on="CustomerID", right_on="Customer ID", how="left")
     rfm.drop(columns=["Customer ID"], inplace=True)
 else:
-    rfm["Margin"] = rfm["Monetary"]  # si pas de coût, on met juste le CA comme proxy
+    rfm["Margin"] = rfm["Monetary"]
 
-# --- Marge totale par segment ---
-st.subheader("Répartition de la marge totale par segment")
-margin_segment = rfm.groupby("Segment")["Margin"].sum()
-fig_margin, ax_margin = plt.subplots(figsize=(6,6))
-ax_margin.pie(
-    margin_segment,
-    labels=margin_segment.index,
-    autopct="%1.1f%%",
-    startangle=90,
-    colors=plt.cm.Pastel1.colors[:len(margin_segment)]
-)
-ax_margin.set_title("Marge totale par segment")
-st.pyplot(fig_margin)
+# --- Graphiques avec téléchargement ---
+col1, col2 = st.columns(2)
 
+with col1:
+    st.subheader("Marge totale par segment")
+    margin_segment = rfm.groupby("Segment")["Margin"].sum()
+    fig_margin, ax_margin = plt.subplots(figsize=(5,5))
+    fig_margin.patch.set_facecolor('none')
+    ax_margin.set_facecolor('none')
+    ax_margin.pie(
+        margin_segment,
+        labels=margin_segment.index,
+        autopct="%1.1f%%",
+        startangle=90,
+        colors=plt.cm.Pastel1.colors[:len(margin_segment)]
+    )
+    ax_margin.set_title("Marge totale par segment")
+    st.pyplot(fig_margin)
+
+with col2:
+    st.subheader("Distribution des segments")
+    fig_dist, ax_dist = plt.subplots(figsize=(5,5))
+    fig_dist.patch.set_facecolor('none')
+    ax_dist.set_facecolor('none')
+    rfm_filtered["Segment"].value_counts().plot(kind="bar", color="darkred", ax=ax_dist)
+    ax_dist.set_ylabel("Nombre de clients")
+    ax_dist.set_xlabel("")
+    ax_dist.set_title("Distribution des segments RFM")
+    plt.xticks(rotation=45, ha='right')
+    st.pyplot(fig_dist)
+
+# Boutons de téléchargement au même niveau
+col1_btn, col2_btn = st.columns(2)
+
+with col1_btn:
+    download_chart(fig_margin, "marge_par_segment.png")
+
+with col2_btn:
+    download_chart(fig_dist, "distribution_segments.png")
 
 # --- Volume total par segment (graphique en aires) ---
-st.subheader("Volume total d'articles par segment (aire)")
+st.subheader("Volume total d'articles par segment")
 volume_segment = rfm.groupby("Segment")["Volume"].sum().sort_values(ascending=False)
-fig_volume, ax_volume = plt.subplots(figsize=(8,4))
-ax_volume.fill_between(volume_segment.index, volume_segment.values, color="plum", alpha=0.6)
-ax_volume.plot(volume_segment.index, volume_segment.values, color="purple", marker="o")
+fig_volume, ax_volume = plt.subplots(figsize=(7,3.5))
+fig_volume.patch.set_facecolor('none')
+ax_volume.set_facecolor('none')
+ax_volume.fill_between(range(len(volume_segment)), volume_segment.values, color="plum", alpha=0.6)
+ax_volume.plot(range(len(volume_segment)), volume_segment.values, color="purple", marker="o")
+ax_volume.set_xticks(range(len(volume_segment)))
+ax_volume.set_xticklabels(volume_segment.index, rotation=45, ha='right')
 ax_volume.set_ylabel("Volume total")
-ax_volume.set_xlabel("Segments")
+ax_volume.set_xlabel("")
 ax_volume.set_title("Volume total par segment")
+ax_volume.grid(True, alpha=0.3)
 st.pyplot(fig_volume)
 
-
-# --- Graphique --- 
-#st.subheader("Distribution des segments")
-#st.bar_chart(rfm_filtered["Segment"].value_counts())
-st.subheader("Distribution des segments")
-fig, ax = plt.subplots(figsize=(8,4))
-rfm_filtered["Segment"].value_counts().plot(kind="bar", color="darkred", ax=ax)
-ax.set_ylabel("Nombre de clients")
-ax.set_xlabel("Segments")
-ax.set_title("Distribution des segments RFM")
-st.pyplot(fig)
+# Téléchargement
+download_chart(fig_volume, "volume_par_segment.png")
 
 # --- Top 3 segments par CA ---
 st.subheader("Top 3 segments par CA total")
@@ -166,7 +195,7 @@ st.table(top_segments.head(3))
 
 # --- Metrics segment : CA / Marge / Panier moyen ---
 st.subheader("Synthèse par segment")
-segment_metrics = df_clients.groupby("Customer ID").agg({
+segment_metrics = df_clients_filtered.groupby("Customer ID").agg({
     "Revenue": "sum",
     "Quantity": "sum"
 }).reset_index()
@@ -184,7 +213,7 @@ rfm_metrics["Panier_moyen"] = rfm_metrics["Monetary"] / rfm_metrics["CustomerID"
 st.dataframe(rfm_metrics, use_container_width=True)
 
 # --- Priorités CRM ---
-st.subheader("Priorités d’activation CRM")
+st.subheader("Priorités d'activation CRM")
 st.markdown("""
 ### Priorités recommandées
 
@@ -195,7 +224,39 @@ st.markdown("""
 - **Perdu** → Campagnes agressives (peu de ROI attendu)
 """)
 
+# --- AVANTAGES ---
+st.markdown("---")
+st.subheader("💡 Avantages de la segmentation RFM")
+
+col_av1, col_av2, col_av3 = st.columns(3)
+
+with col_av1:
+    st.markdown("""
+    **🎯 Ciblage précis**
+    - Actions marketing personnalisées
+    - Budget optimisé par segment
+    - Meilleur ROI des campagnes
+    """)
+
+with col_av2:
+    st.markdown("""
+    **📈 Augmentation des ventes**
+    - Réactivation des clients inactifs
+    - Fidélisation des meilleurs clients
+    - Développement du panier moyen
+    """)
+
+with col_av3:
+    st.markdown("""
+    **🔍 Vision stratégique**
+    - Identification rapide des priorités
+    - Suivi de l'évolution des segments
+    - Aide à la décision CRM
+    """)
+
+st.markdown("---")
+
 # --- Export ---
-if st.button("Exporter CSV"):
+if st.button("📥 Exporter CSV"):
     rfm_filtered.to_csv("export_rfm_segments.csv", index=False)
-    st.success("Exporté : export_rfm_segments.csv")
+    st.success("✅ Exporté : export_rfm_segments.csv")

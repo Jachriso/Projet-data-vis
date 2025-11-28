@@ -30,3 +30,16 @@ def session_setup():
     df_clients_filtered = st.session_state["df_clients_filtered"]
 
     return df, df_clients, df_filtered, df_clients_filtered
+
+
+def download_chart(fig, file_name, label="📥 Télécharger le graphique"):
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png', bbox_inches='tight', transparent=True, dpi=300)
+    buf.seek(0)
+    
+    st.download_button(
+        label=label,
+        data=buf,
+        file_name=file_name,
+        mime="image/png"
+    )
